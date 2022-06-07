@@ -1,0 +1,3 @@
+diahoy=5
+
+print("Hoy es día " .. diahoy)

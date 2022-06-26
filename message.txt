@@ -1,0 +1,141 @@
+package screen;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import static java.lang.Math.*;
+import javax.swing.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+ 
+public class Screen extends JPanel implements KeyListener, Runnable{
+	
+	private static final long serialVersionUID = 1L;
+	public static int winwidth = 1152;
+	public static int winheight = 720;
+	boolean leftmidx, rightmidx;
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		this.setDoubleBuffered(true);
+		this.setFocusable(true);
+		
+		block(g);
+	}
+	int midx = winwidth / 2;
+	int midy = winheight / 2;
+	public void block(Graphics g) {
+		int x;
+		int y;
+		int z = -100;
+		int blockrad = 100;
+		int pi = 22/7;
+		int ztop = (blockrad * 2 + blockrad * 2)/ pi;
+		g.drawLine(midx - blockrad, midy - blockrad, midx - blockrad, midy + blockrad);
+		g.drawLine(midx + blockrad, midy - blockrad, midx + blockrad, midy + blockrad);
+		g.drawLine(midx - blockrad, midy + blockrad, midx + blockrad, midy + blockrad);
+		g.drawLine(midx - blockrad, midy - blockrad, midx + blockrad, midy - blockrad);
+		
+		g.drawLine(midx - blockrad, midy - blockrad, midx + blockrad + (z * 3), midy - ztop);
+		g.drawLine(midx - blockrad, midy + blockrad, midx + blockrad + (z * 3), midy + ztop);
+		
+		g.drawLine(midx + blockrad, midy - blockrad, midx + ztop / 2, midy - ztop);
+		g.drawLine(midx + blockrad, midy + blockrad, midx + ztop / 2, midy + ztop);
+		
+		g.drawLine(midx - blockrad * 2, midy - blockrad - (ztop / 4), midx - blockrad * 2, midy + blockrad + (ztop / 4));
+		g.drawLine(midx + blockrad + (z * 3), midy - blockrad - ztop / 4, midx + ztop / 2, midy - blockrad - ztop / 4);
+		g.drawLine(midx - blockrad + (z), midy + blockrad + ztop / 4, midx + ztop / 2, midy + blockrad + ztop / 4);
+		g.drawLine(midx + ztop / 2, midy - blockrad - (ztop / 4), midx + ztop / 2, midy + blockrad + (ztop / 4));
+	}
+	public static void main(String[] args) {
+		Screen screen = new Screen();
+    	JFrame frame = new JFrame();
+        frame.setSize(winwidth, winheight);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setTitle("3D");
+        frame.getLocation(null);
+        frame.setVisible(true);
+        frame.setResizable(false);
+        frame.add(screen);
+		frame.addKeyListener(screen);
+		frame.setFocusable(true);
+	}
+	
+    Thread Gamethread;
+ 	
+ 	public void startGamethread() {
+    	Gamethread = new Thread(this);
+    	Gamethread.start();
+    }
+ 	
+ 	public void update() {
+ 		if (leftmidx == true) {
+ 			midx -= 25;
+ 		} else {
+ 			midx += 0;
+ 		}
+ 		if (rightmidx == true) {
+ 			midx += 25;
+ 		} else {
+ 			midx += 0;
+ 		}
+ 	}
+	
+	@Override
+	public void run() {
+		int fps = 60;
+		double drawInterval = 1000000000/fps;
+    	double nextdrawtime = System.nanoTime() + drawInterval;
+    	
+    	while(Gamethread != null) {
+    		
+    		update();
+    		repaint();
+    		
+    		try {
+    			double remainingtime = nextdrawtime - System.nanoTime();
+    			remainingtime = remainingtime / 1000000;
+    			if(remainingtime < 0) {
+    				remainingtime = 0;
+    			}
+    			Thread.sleep((long) remainingtime);
+    			nextdrawtime += drawInterval;
+    		} catch (InterruptedException e) {
+    			e.printStackTrace();
+    		}
+    	}
+	}
+	
+	
+	@Override
+	public void keyTyped(KeyEvent e)
+	{
+		
+	}
+	@Override
+	public void keyPressed(KeyEvent e)
+	{
+
+		int c = e.getKeyCode();
+		if(c == e.VK_A){
+			System.out.println("Midx is minused" + midx);
+			leftmidx = true;
+		}
+		if (c == KeyEvent.VK_D) {
+			System.out.println("Midx is plused" + midx);
+			rightmidx = true;
+		}
+	}
+	@Override
+	public void keyReleased(KeyEvent e)
+	{
+		int c = e.getKeyCode();
+		if(c == e.VK_A){
+			System.out.println("Midx is minused1");
+			leftmidx = false;
+			midx -= 5;
+		}
+		if (c == KeyEvent.VK_D) {
+			System.out.println("Midx is plused1");
+			rightmidx = false;
+			midx += 5;
+		}
+	}
+}
